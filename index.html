@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OMEN</title>
+<style>
+  :root {
+    --bg: #eef1f6;
+    --surface: #ffffff;
+    --ink: #1b2340;
+    --muted: #6a7391;
+    --accent: #3d5afe;
+    --accent-ink: #ffffff;
+    --line: #d9deea;
+    color-scheme: light dark;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #12172b;
+      --surface: #1c2340;
+      --ink: #e8ebf7;
+      --muted: #8f99bd;
+      --accent: #7c93ff;
+      --accent-ink: #12172b;
+      --line: #2b3458;
+    }
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    display: flex;
+    flex-direction: column;
+    max-width: 760px;
+    margin: 0 auto;
+  }
+  header {
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom:
