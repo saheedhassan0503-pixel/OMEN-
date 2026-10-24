@@ -5,60 +5,117 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>OMEN</title>
 <style>
-:root{--bg:#eef1f6;--sf:#fff;--ink:#1b2340;--mu:#6a7391;--ac:#3d5afe;--ai:#fff;--ln:#d9deea;color-scheme:light dark}
-@media (prefers-color-scheme:dark){:root{--bg:#12172b;--sf:#1c2340;--ink:#e8ebf7;--mu:#8f99bd;--ac:#7c93ff;--ai:#12172b;--ln:#2b3458}}
+:root{--bg:#eef1f6;--sf:#fff;--ink:#1b2340;--mu:#6a7391;--ac:#3d5afe;--ai:#fff;--ln:#d9deea}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#12172b;--sf:#1c2340;--ink:#e8ebf7;--mu:#8f99bd;--ac:#7c93ff;--ai:#12172b;--ln:#2b3458}}
+[data-theme=dark]{--bg:#12172b;--sf:#1c2340;--ink:#e8ebf7;--mu:#8f99bd;--ac:#7c93ff;--ai:#12172b;--ln:#2b3458}
 *{box-sizing:border-box}
 html,body{height:100%;margin:0}
-body{background:var(--bg);color:var(--ink);font-family:system-ui,sans-serif;display:flex;flex-direction:column;max-width:760px;margin:0 auto}
-header{padding:16px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--ln)}
-h1{font-size:1.1rem;margin:0}
-#clear{background:none;border:1px solid var(--ln);color:var(--mu);padding:6px 12px;border-radius:99px;cursor:pointer}
-#log{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:14px}
+body{background:var(--bg);color:var(--ink);font-family:system-ui,sans-serif;font-size:16px;display:flex;flex-direction:column;max-width:760px;margin:0 auto;position:relative}
+button,select{font:inherit;color:inherit}
+header{padding:12px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--ln)}
+h1{font-size:1.1em;margin:0}
+.ib{background:none;border:1px solid var(--ln);border-radius:12px;padding:6px 12px;cursor:pointer;color:var(--mu)}
+.ic{border:0;font-size:1.4em;padding:2px 10px}
+#log{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:14px}
 .empty{margin:auto;text-align:center;color:var(--mu);max-width:320px}
-.empty b{display:block;color:var(--ink);font-size:1.3rem;margin-bottom:6px}
-.msg{max-width:85%;padding:11px 15px;border-radius:18px;line-height:1.5;overflow-wrap:anywhere}
+.empty b{display:block;font-size:1.6em;font-weight:700;margin-bottom:8px;background:linear-gradient(90deg,#4f6bff,#c05cff,#ff7a59);-webkit-background-clip:text;background-clip:text;color:transparent}
+.chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:18px}
+.chips button{background:var(--sf);border:1px solid var(--ln);border-radius:16px;padding:9px 13px;cursor:pointer}
+.msg{max-width:88%;padding:11px 15px;border-radius:18px;line-height:1.5;overflow-wrap:anywhere}
 .msg p{margin:0 0 .7em}
-.msg p:last-child{margin:0}
-.user{align-self:flex-end;background:var(--ac);color:var(--ai)}
-.bot{align-self:flex-start;background:var(--sf);border:1px solid var(--ln)}
+.msg p:last-of-type{margin:0}
+.user{align-self:flex-end;background:var(--sf);border:1px solid var(--ln);border-radius:20px 20px 6px 20px}
+.bot{align-self:flex-start;max-width:100%;padding:4px 2px}
 .err{color:#c62828}
-.row{display:flex;gap:10px;padding:14px 20px 8px;border-top:1px solid var(--ln)}
-textarea{flex:1;resize:none;max-height:140px;background:var(--sf);color:var(--ink);border:1px solid var(--ln);border-radius:16px;padding:12px 14px;font:inherit}
-#send{background:var(--ac);color:var(--ai);border:0;border-radius:16px;padding:0 20px;font:inherit;font-weight:600;cursor:pointer}
+.cp,.rt{margin:8px 14px 0 0;background:none;border:0;color:var(--mu);font-size:.8em;cursor:pointer;padding:0}
+.row{display:flex;align-items:flex-end;gap:8px;margin:8px 14px 4px;padding:8px;background:var(--sf);border:1px solid var(--ln);border-radius:26px}
+  textarea{flex:1;resize:none;max-height:140px;background:none;color:var(--ink);border:0;outline:0;padding:9px 10px;font:inherit}
+.pan textarea{border:1px solid var(--ln);border-radius:10px;width:100%}
+#send{background:var(--ac);color:var(--ai);border:0;border-radius:50%;width:40px;height:40px;font-size:1.3em;cursor:pointer}
 #send:disabled{opacity:.5}
-.pw{text-align:center;font-size:.78rem;color:var(--mu);padding:0 0 12px}
+#mic{background:none;border:0;font-size:1.3em;cursor:pointer;width:34px;height:40px;padding:0}
+.pw{text-align:center;font-size:.78em;color:var(--mu);padding:0 0 10px}
+.pan{position:absolute;top:0;bottom:0;background:var(--sf);border:1px solid var(--ln);padding:16px;width:min(86%,320px);z-index:5;overflow-y:auto;display:none}
+.pan.on{display:block}
+#side{left:0}
+#set{right:0}
+.pan h2{font-size:1.1em;margin:0 0 14px}
+.pan label{display:block;margin:14px 0 6px;color:var(--mu);font-size:.9em}
+.pan select{width:100%;padding:10px;background:var(--bg);border:1px solid var(--ln);border-radius:10px}
+.ci{display:flex;align-items:center;gap:6px;margin:6px 0}
+.ci button:first-child{flex:1;text-align:left;background:var(--bg);border:1px solid var(--ln);border-radius:10px;padding:10px;cursor:pointer;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ci button+button{background:none;border:0;color:var(--mu);cursor:pointer;font-size:1.2em}
 </style>
 </head>
 <body>
-<header><h1>OMEN</h1><button id="clear" type="button">New chat</button></header>
+<header><button class="ib ic" id="menu" type="button" aria-label="Chats">&#9776;</button><h1>OMEN</h1><button class="ib ic" id="gear" type="button" aria-label="Settings">&#9881;</button></header>
+<div class="pan" id="side"><h2>Your chats</h2><button class="ib" id="new" type="button">+ New chat</button><div id="chats"></div><button class="ib" id="x1" type="button" style="margin-top:14px">Close</button></div>
+<div class="pan" id="set"><h2>Settings</h2>
+<label>Theme</label><select id="theme"><option value="auto">Automatic</option><option value="light">Light</option><option value="dark">Dark</option></select>
+<label>Text size</label><select id="size"><option value="14">Small</option><option value="16">Medium</option><option value="19">Large</option></select>
+<label>AI tone</label><select id="tone"><option value="friendly">Friendly</option><option value="short">Short answers</option><option value="formal">Formal</option></select>
+<label>Search the web</label><select id="search"><option value="0">Off</option><option value="1">On</option></select>
+<label>About you (name, interests)</label><textarea id="about" rows="3" placeholder="Example: I am Hassan. I like football."></textarea>
+<button class="ib" id="wipe" type="button" style="margin-top:18px">Delete all chats</button>
+<button class="ib" id="x2" type="button" style="margin-top:10px">Close</button></div>
 <div id="log"></div>
-<div class="row"><textarea id="box" rows="1" placeholder="Ask anything"></textarea><button id="send" type="button">Send</button></div>
+<div class="row"><textarea id="box" rows="1" placeholder="Ask anything"></textarea><button id="mic" type="button" aria-label="Speak" style="display:none">&#127908;</button><button id="send" type="button" aria-label="Send">&#8593;</button></div>
 <div class="pw">Powered by Hassan</div>
-  <script>
-var log=document.getElementById('log'),box=document.getElementById('box'),btn=document.getElementById('send');
-var hist=[],busy=false;
+<script>
+var $=function(i){return document.getElementById(i)};
+var log=$('log'),box=$('box'),btn=$('send');
+function ld(k,d){try{return JSON.parse(localStorage.getItem(k))||d}catch(e){return d}}
+var S=ld('omen_s',{theme:'auto',size:'16',tone:'friendly',search:'0',about:''});
+var C=ld('omen_c',[]),cur=null,busy=false;
+function sv(){try{localStorage.setItem('omen_s',JSON.stringify(S));localStorage.setItem('omen_c',JSON.stringify(C))}catch(e){}}
+function ap(){document.documentElement.setAttribute('data-theme',S.theme);document.body.style.fontSize=S.size+'px';
+['theme','size','tone','search'].forEach(function(k){$(k).value=S[k]});$('about').value=S.about||''}
 function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
-function fmt(t){return esc(t).split(/\n\n+/).map(function(p){return '<p>'+p.replace(/\n/g,'<br>')+'</p>'}).join('')}
-function empty(){log.innerHTML='<div class="empty"><b>What can I help with?</b>Type a question below.</div>'}
-function add(cls,html){var e=log.querySelector('.empty');if(e)e.remove();var d=document.createElement('div');d.className='msg '+cls;d.innerHTML=html;log.appendChild(d);log.scrollTop=log.scrollHeight;return d}
-async function send(){
-var t=box.value.trim();if(!t||busy)return;
-busy=true;btn.disabled=true;box.value='';
-add('user',fmt(t));hist.push({role:'user',content:t});
+function fmt(t){return esc(t).replace(/\*\*([^*]+)\*\*/g,'<b>$1</b>').split(/\n\n+/).map(function(p){return '<p>'+p.replace(/\n/g,'<br>')+'</p>'}).join('')}
+function empty(){log.innerHTML='<div class="empty"><b>How can I help you today?</b>Ask me anything or tell me what to write.<div class="chips" id="chips"></div></div>';
+['Write a polite email','Explain something simply','Plan my day','Help me write a post'].forEach(function(t){var c=document.createElement('button');c.textContent=t;c.onclick=function(){send(t)};$('chips').appendChild(c)})}
+function add(role,text){
+var e=log.querySelector('.empty');if(e)e.remove();
+var d=document.createElement('div');d.className='msg '+(role=='user'?'user':'bot');
+d.innerHTML=fmt(text);
+  if(role=='assistant'){var c=document.createElement('button');c.className='cp';c.textContent='Copy';
+c.onclick=function(){try{navigator.clipboard.writeText(text);c.textContent='Copied'}catch(x){}};d.appendChild(c);var q=document.createElement('button');q.className='rt';q.textContent='Retry';q.onclick=retry;d.appendChild(q)}
+log.appendChild(d);var a=log.querySelectorAll('.rt');for(var i=0;i<a.length-1;i++)a[i].remove();log.scrollTop=log.scrollHeight;return d}
+function show(){log.innerHTML='';if(!cur||!cur.msgs.length){empty();return}
+cur.msgs.forEach(function(m){add(m.role,m.content)})}
+function lst(){var h=$('chats');h.innerHTML='';
+C.forEach(function(c){var r=document.createElement('div');r.className='ci';
+var a=document.createElement('button');a.textContent=c.title;a.onclick=function(){cur=c;show();pan()};
+var b=document.createElement('button');b.textContent='x';
+b.onclick=function(){C=C.filter(function(z){return z!==c});if(cur===c)cur=null;sv();lst();show()};
+r.appendChild(a);r.appendChild(b);h.appendChild(r)})}
+function pan(n){$('side').classList.remove('on');$('set').classList.remove('on');if(n){lst();$(n).classList.add('on')}}
+function retry(){if(busy||!cur)return;var m=cur.msgs;if(m.length&&m[m.length-1].role=='assistant')m.pop();var u=m.pop();if(!u)return;sv();show();send(u.content)}
+async function send(x){
+var t=(typeof x=='string'?x:box.value).trim();if(!t||busy)return;
+if(!cur){cur={id:Date.now(),title:t.slice(0,30),msgs:[]};C.unshift(cur)}
+busy=true;btn.disabled=true;if(typeof x!='string')box.value='';
+cur.msgs.push({role:'user',content:t});add('user',t);sv();
 var w=add('bot','Thinking...');
 try{
-var r=await fetch('/.netlify/functions/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:hist})});
+var r=await fetch('/.netlify/functions/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:cur.msgs,tone:S.tone,search:S.search=='1',about:S.about})});
 var d=await r.json();
 if(!d.reply)throw new Error(d.error||'No reply');
-hist.push({role:'assistant',content:d.reply});
-w.innerHTML=fmt(d.reply);
-}catch(e){hist.pop();w.className='msg bot err';w.textContent='Message failed: '+e.message}
-busy=false;btn.disabled=false;log.scrollTop=log.scrollHeight;
-}
-btn.onclick=send;
+cur.msgs.push({role:'assistant',content:d.reply});sv();w.remove();add('assistant',d.reply);
+}catch(e){cur.msgs.pop();sv();w.className='msg bot err';w.textContent='Message failed: '+e.message}
+busy=false;btn.disabled=false;log.scrollTop=log.scrollHeight}
+btn.onclick=function(){send()};
+var SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  if(SR){$('mic').style.display='';$('mic').onclick=function(){var r=new SR();r.onresult=function(e){box.value+=(box.value?' ':'')+e.results[0][0].transcript};r.start()}}
 box.onkeydown=function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send()}};
-document.getElementById('clear').onclick=function(){hist=[];empty()};
-empty();
+$('menu').onclick=function(){pan('side')};
+$('gear').onclick=function(){pan('set')};
+$('x1').onclick=function(){pan()};$('x2').onclick=function(){pan()};
+$('new').onclick=function(){cur=null;show();pan()};
+$('wipe').onclick=function(){C=[];cur=null;sv();show();pan()};
+['theme','size','tone','search'].forEach(function(k){$(k).onchange=function(){S[k]=this.value;sv();ap()}});
+cur=C[0]||null;$('about').oninput=function(){S.about=this.value;sv()};
+ap();show();
 </script>
 </body>
 </html>
