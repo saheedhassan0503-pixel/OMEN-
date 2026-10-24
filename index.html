@@ -5,41 +5,60 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>OMEN</title>
 <style>
-  :root {
-    --bg: #eef1f6;
-    --surface: #ffffff;
-    --ink: #1b2340;
-    --muted: #6a7391;
-    --accent: #3d5afe;
-    --accent-ink: #ffffff;
-    --line: #d9deea;
-    color-scheme: light dark;
-  }
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --bg: #12172b;
-      --surface: #1c2340;
-      --ink: #e8ebf7;
-      --muted: #8f99bd;
-      --accent: #7c93ff;
-      --accent-ink: #12172b;
-      --line: #2b3458;
-    }
-  }
-  * { box-sizing: border-box; }
-  html, body { height: 100%; margin: 0; }
-  body {
-    background: var(--bg);
-    color: var(--ink);
-    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
-    display: flex;
-    flex-direction: column;
-    max-width: 760px;
-    margin: 0 auto;
-  }
-  header {
-    padding: 16px 20px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    border-bottom:
+:root{--bg:#eef1f6;--sf:#fff;--ink:#1b2340;--mu:#6a7391;--ac:#3d5afe;--ai:#fff;--ln:#d9deea;color-scheme:light dark}
+@media (prefers-color-scheme:dark){:root{--bg:#12172b;--sf:#1c2340;--ink:#e8ebf7;--mu:#8f99bd;--ac:#7c93ff;--ai:#12172b;--ln:#2b3458}}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--ink);font-family:system-ui,sans-serif;display:flex;flex-direction:column;max-width:760px;margin:0 auto}
+header{padding:16px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--ln)}
+h1{font-size:1.1rem;margin:0}
+#clear{background:none;border:1px solid var(--ln);color:var(--mu);padding:6px 12px;border-radius:99px;cursor:pointer}
+#log{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:14px}
+.empty{margin:auto;text-align:center;color:var(--mu);max-width:320px}
+.empty b{display:block;color:var(--ink);font-size:1.3rem;margin-bottom:6px}
+.msg{max-width:85%;padding:11px 15px;border-radius:18px;line-height:1.5;overflow-wrap:anywhere}
+.msg p{margin:0 0 .7em}
+.msg p:last-child{margin:0}
+.user{align-self:flex-end;background:var(--ac);color:var(--ai)}
+.bot{align-self:flex-start;background:var(--sf);border:1px solid var(--ln)}
+.err{color:#c62828}
+.row{display:flex;gap:10px;padding:14px 20px 8px;border-top:1px solid var(--ln)}
+textarea{flex:1;resize:none;max-height:140px;background:var(--sf);color:var(--ink);border:1px solid var(--ln);border-radius:16px;padding:12px 14px;font:inherit}
+#send{background:var(--ac);color:var(--ai);border:0;border-radius:16px;padding:0 20px;font:inherit;font-weight:600;cursor:pointer}
+#send:disabled{opacity:.5}
+.pw{text-align:center;font-size:.78rem;color:var(--mu);padding:0 0 12px}
+</style>
+</head>
+<body>
+<header><h1>OMEN</h1><button id="clear" type="button">New chat</button></header>
+<div id="log"></div>
+<div class="row"><textarea id="box" rows="1" placeholder="Ask anything"></textarea><button id="send" type="button">Send</button></div>
+<div class="pw">Powered by Hassan</div>
+  <script>
+var log=document.getElementById('log'),box=document.getElementById('box'),btn=document.getElementById('send');
+var hist=[],busy=false;
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+function fmt(t){return esc(t).split(/\n\n+/).map(function(p){return '<p>'+p.replace(/\n/g,'<br>')+'</p>'}).join('')}
+function empty(){log.innerHTML='<div class="empty"><b>What can I help with?</b>Type a question below.</div>'}
+function add(cls,html){var e=log.querySelector('.empty');if(e)e.remove();var d=document.createElement('div');d.className='msg '+cls;d.innerHTML=html;log.appendChild(d);log.scrollTop=log.scrollHeight;return d}
+async function send(){
+var t=box.value.trim();if(!t||busy)return;
+busy=true;btn.disabled=true;box.value='';
+add('user',fmt(t));hist.push({role:'user',content:t});
+var w=add('bot','Thinking...');
+try{
+var r=await fetch('/.netlify/functions/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:hist})});
+var d=await r.json();
+if(!d.reply)throw new Error(d.error||'No reply');
+hist.push({role:'assistant',content:d.reply});
+w.innerHTML=fmt(d.reply);
+}catch(e){hist.pop();w.className='msg bot err';w.textContent='Message failed: '+e.message}
+busy=false;btn.disabled=false;log.scrollTop=log.scrollHeight;
+}
+btn.onclick=send;
+box.onkeydown=function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send()}};
+document.getElementById('clear').onclick=function(){hist=[];empty()};
+empty();
+</script>
+</body>
+</html>
