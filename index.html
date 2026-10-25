@@ -119,3 +119,11 @@ ap();show();
 </script>
 </body>
 </html>
+<style>#intro{position:fixed;inset:0;z-index:99;background:#00030d;display:flex;align-items:center;justify-content:center;opacity:1;transition:opacity .6s}#intro.off{opacity:0;pointer-events:none}#intro img{width:min(62vw,300px);height:auto;animation:ri 1.1s ease both}@keyframes ri{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:scale(1)}}</style>
+<div id="intro"><img id="introimg" alt="OMEN"></div>
+<script src="logo.js"></script>
+<script>(function(){var d=document.getElementById('intro');var s=false;try{s=sessionStorage.getItem('omen_i')}catch(e){}
+if(s||!window.OMEN_LOGO){d.className='off';return}
+document.getElementById('introimg').src=window.OMEN_LOGO;
+function go(){d.className='off';try{sessionStorage.setItem('omen_i','1')}catch(e){}}
+setTimeout(go,2600);d.onclick=go})()</script>
